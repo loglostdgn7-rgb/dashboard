@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>깃허브 대시보드</title>
+    <link rel="stylesheet" href="/css/public.css">
+    <link rel="stylesheet" href="/css/page/main.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="/js/page/main.js" defer></script>
+</head>
+<body>
+<header th:replace="~{common/header :: headerFragment}"></header>
+<main>
+    <th:block layout:fragment="content"></th:block>
+</main>
+<footer th:replace="~{common/footer :: footerFragment}"></footer>
+</body>
+</html>

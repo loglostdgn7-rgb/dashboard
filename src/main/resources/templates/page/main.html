@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+</head>
+
+<div layout:fragment="content" class="dashboard-grid">
+
+    <!--    통계 -->
+    <section class="stats-section">
+        <h1>통계</h1>
+
+        <div class="stats-content-wrapper">
+
+            <div class="stats-text">
+                <div class="text-title">
+                    <h2>리스트</h2>
+                    <span th:text="'이벤트 총 합계 : ' + ${pageData.totalCount} + '건'"></span>
+                </div>
+
+                <div class="stats-list-content">
+
+                    <div class="grid-head">
+                        <span>이벤트 타입</span>
+                        <span>발생 횟수</span>
+                    </div>
+
+                    <div class="grid-item" th:each="stat : ${eventStats}">
+                        <span th:text="${stat.type}">이벤트 타입</span>
+                        <span th:text="${stat.count} + '건'">발생 횟수</span>
+                    </div>
+
+                    <div class="grid-none-item" th:if="${eventStats == null || eventStats.isEmpty()}">
+                        통계 데이터가 없습니다
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-chart">
+                <h2>차트</h2>
+
+                <div class="chart-canvas-container">
+                    <canvas class="chart-bar"
+                            th:data-labels="${chartLabels}"
+                            th:data-data="${chartData}">
+                    </canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 탑 활동량 -->
+    <section class="top-active-section">
+        <h1>활동량</h1>
+
+        <h2>활동량 많은 리포지토리 (Top 3)</h2>
+        <div class="grid-head">
+            <span>리포지토리</span>
+            <span>활동량</span>
+        </div>
+        <div class="popular-repos" th:if="${topRepos != null && !topRepos.isEmpty()}">
+
+            <div class="grid-item" th:each="repo : ${topRepos}">
+                <span th:text="${repo.name}">Repo Name</span>
+                <span th:text="${repo.count} + '건'">Count</span>
+            </div>
+        </div>
+
+        <h2>활동량 많은 사용자 (Top 3)</h2>
+        <div class="grid-head users">
+            <span>아이콘</span>
+            <span>사용자</span>
+            <span>활동량</span>
+        </div>
+        <div class="popular-users" th:if="${topUsers != null && !topUsers.isEmpty()}">
+
+            <div class="grid-item" th:each="user : ${topUsers}">
+
+                <img th:src="${user.avatarUrl}" th:alt="${user.login}"/>
+                <span th:text="${user.login}">User Login</span>
+                <span th:text="${user.count} + '건'">Count</span>
+            </div>
+        </div>
+    </section>
+
+
+    <!--    이벤트 리스트-->
+    <section class="event-list-section">
+
+        <th:block th:fragment="list-fragment">
+
+            <h1>이벤트 리스트</h1>
+
+            <h2>GitHub Public Activity (최근 7일)</h2>
+
+            <div class="grid-container">
+
+                <div class="grid-head">
+                    <span>이벤트 타입</span>
+                    <span>리포지토리</span>
+                    <span>시간</span>
+                </div>
+
+                <div class="grid-item" th:each="event : ${pageData.eventList}">
+                    <span th:text="${event.type}">이벤트 타입</span>
+                    <span th:text="${event.repo != null ? event.repo.name : 'N/A'}">리포지토리</span>
+                    <span th:text="${#temporals.format(T(java.time.Instant).parse(event.createdAt),'yyyy-MM-dd HH:mm:ss','Asia/Seoul')}">시간</span>
+                </div>
+
+                <div class="grid-none-item" th:if="${pageData.eventList == null || pageData.eventList.isEmpty()}">
+                    데이터가 없습니다. 수집중...
+                </div>
+            </div>
+
+
+            <!-- 페이지네이션 -->
+            <div class="pagination" th:if="${pageData.totalPages > 0}">
+
+                <a th:if="${pageData.hasPrev}"
+                   th:href="@{/(page=1)}"
+                   th:hx-get="@{/(page=1)}"
+                   hx-target=".event-list-section"
+                   hx-swap="innerHTML"
+                   hx-push-url="false">시작으로</a>
+
+                <a th:if="${pageData.hasPrev}"
+                   th:href="@{/(page=${pageData.startPage - 1})}"
+                   th:hx-get="@{/(page=${pageData.startPage - 1})}"
+                   hx-target=".event-list-section"
+                   hx-swap="innerHTML"
+                   hx-push-url="false">◀</a>
+
+                <th:block th:each="pageNum : ${#numbers.sequence(pageData.startPage, pageData.endPage)}">
+                    <a th:href="@{/(page=${pageNum})}"
+                       th:text="${pageNum}"
+                       th:classappend="${pageNum == pageData.currentPage} ? 'active' : ''"
+                       th:hx-get="@{/(page=${pageNum})}"
+                       hx-target=".event-list-section"
+                       hx-swap="innerHTML"
+                       hx-push-url="false">
+                    </a>
+                </th:block>
+
+                <a th:if="${pageData.hasNext}"
+                   th:href="@{/(page=${pageData.endPage + 1})}"
+                   th:hx-get="@{/(page=${pageData.endPage + 1})}"
+                   hx-target=".event-list-section"
+                   hx-swap="innerHTML"
+                   hx-push-url="false">▶</a>
+
+                <a th:if="${pageData.hasNext}"
+                   th:href="@{/(page=${pageData.totalPages})}"
+                   th:hx-get="@{/(page=${pageData.totalPages})}"
+                   hx-target=".event-list-section"
+                   hx-swap="innerHTML"
+                   hx-push-url="false">끝으로</a>
+            </div>
+
+        </th:block>
+    </section>
+
+</div>
+</html>

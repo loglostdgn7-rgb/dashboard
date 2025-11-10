@@ -1,0 +1,134 @@
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.stats-section {
+    grid-column: 1/-1;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid #000000
+
+}
+
+.stats-section h1 {
+    text-align: center;
+    border-bottom: 1px solid #6c6c6c;
+}
+
+.stats-content-wrapper {
+    display: flex;
+    gap: 1rem;
+    flex-grow: 1;
+}
+
+
+/*통계 리스트*/
+.stats-text {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+
+.stats-chart {
+}
+
+.stats-text,
+.stats-chart {
+    flex: 1;
+}
+
+/*통계 리스트 소제목*/
+.text-title {
+    display: grid;
+    grid-template-columns: 1fr 9fr;
+    gap: 1rem;
+    align-items: center;
+}
+
+.stats-list-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    height: 18.75rem;
+}
+
+
+/*차트*/
+.stats-chart {
+    overflow-x: auto;
+    position: relative;
+}
+
+
+.chart-canvas-container {
+    position: relative;
+    height: 25rem;
+    min-width: 100%;
+}
+
+.chart-bar {
+    height: inherit;
+}
+
+
+/*활동량*/
+.popular-repos,
+.popular-users {
+
+}
+
+/*활동량 리포지토리*/
+.popular-repos {
+    padding-bottom: 2rem;
+    height: 7.5rem;
+}
+
+
+/*활동량 사용자*/
+.grid-head.users {
+    grid-template-columns: 1fr 1fr 1fr;
+
+}
+
+.popular-users .grid-item {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.popular-users {
+    height: 8.75rem;
+}
+
+.popular-users img {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    vertical-align: middle;
+    margin-right: 0.625rem;
+}
+
+
+.popular-repos .grid-item div:first-child span,
+.popular-users .grid-item div:first-child span {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/*이벤트 리스트*/
+.event-list-section .grid-head,
+.event-list-section .grid-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+/*페이지네이션*/
+.pagination {
+    text-align: center;
+    padding: 1rem 0;
+}
+
+.pagination a {
+    padding: 0 1rem;
+}
+

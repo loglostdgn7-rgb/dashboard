@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dashboard.mapper.EventMapper">
+    <resultMap id="eventResultMap" type="EventDTO">
+        <id property="id" column="id"/>
+
+        <result property="type" column="event_type"/>
+        <result property="createdAt" column="created_at"/>
+
+        <association property="repo" javaType="RepoDTO">
+            <result property="name" column="repo_name"/>
+        </association>
+    </resultMap>
+    
+    <select id="findAllEventsPaginated" resultMap="eventResultMap" flushCache="true">
+        select *
+        from github_events
+        order by created_at DESC, id DESC
+        limit #{limit} offset #{offset}
+    </select>
+
+    <select id="getTotalCount" resultType="java.lang.Integer">
+     select count(*)
+     from github_events
+    </select>
+
+
+    <select id="getEventStats" resultType="EventStatsDTO">
+        select event_type as type,
+               count(*)   as count
+        from github_events
+        group by type
+        order by count DESC
+    </select>
+
+    <select id="getTopRepos" resultType="RepoDTO">
+        select count(*)  as count,
+               repo_name as name
+        from github_events
+        where repo_name is not null
+          and repo_name != 'N/A'
+        group by name
+        order by count DESC
+        limit #{limit}
+    </select>
+
+    <select id="getTopUsers" resultType="ActorDTO">
+        select actor_login      as login,
+               actor_avatar_url as avatarUrl,
+               count(*)         as count
+        from github_events
+        where actor_login is not null
+        group by login, avatarUrl
+        order by count DESC
+        limit #{limit}
+    </select>
+
+
+    <insert id="insertEventList" parameterType="list">
+        insert into github_events (event_type, repo_name, created_at, actor_login,actor_avatar_url)
+        values
+        <foreach collection="list" item="event" separator=",">
+            (#{event.type}, #{event.repo.name},#{event.createdAt}, #{event.actor.login}, #{event.actor.avatarUrl})
+        </foreach>
+    </insert>
+
+
+    <delete id="deleteOldEvents">
+        delete
+        from github_events
+        where STR_TO_DATE(created_at, '%Y-%m-%dT%TZ') &lt; NOW() - INTERVAL 7 DAY
+    </delete>
+
+</mapper>
