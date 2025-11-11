@@ -190,8 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 오류 발생 시 자동으로 재연결을 시도함.
         // 서버가 완전히 닫혔으면 여기서 연결을 명시적으로 닫을 수 있다고함;
-        console.log("SSE 연결 실패. 재연결 시도를 중지합니다.서버가 종료된 것 같습니다");
-        eventSource.close();
+
+        // console.log("SSE 연결 실패. 재연결 시도를 중지합니다.서버가 종료된 것 같습니다");
+        // eventSource.close(); //엔진엑스가 1일동안 연결을 끊지 않으니 다지 재연결 할거 같음
     };
 
 }); // DOMContentLoaded 끝
