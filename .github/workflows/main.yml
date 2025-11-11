@@ -85,7 +85,7 @@ jobs:
             
             docker rm dashboard-app || true
           
-            docker run -d --name dashboard-app --network=npm-network --restart always -e SPRING_DATASOURCE_URL="${{ secrets.DB_URL }}" -e SPRING_DATASOURCE_USERNAME="${{ secrets.DB_USER }}" -e SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASS }}" ${{ secrets.DOCKERHUB_USERNAME }}/github-dashboard:latest
+            docker run -d --name dashboard-app --network=host --restart always -e SPRING_DATASOURCE_URL="jdbc:mysql://127.0.0.1:3306/dashboard" -e SPRING_DATASOURCE_USERNAME="${{ secrets.DB_USER }}" -e SPRING_DATASOURCE_PASSWORD="${{ secrets.DB_PASS }}" -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" ${{ secrets.DOCKERHUB_USERNAME }}/github-dashboard:latest
 
             docker image prune -f
           
