@@ -55,6 +55,36 @@ public class GithubDataScheduler {
             List<ActorDTO> topUsers = dataReprocessService.getTopUsers_Fresh();
 
 
+            //캐시 풋/먼저 실행하기(저장한 DB 캐시 덮어쓰기)
+            try{
+                String cacheKey = "SimpleKey []";
+
+                Cache totalEventCountCache = cacheManager.getCache("totalEventCount");
+                if (totalEventCountCache != null) {
+                    totalEventCountCache.put(cacheKey, totalCount);
+                }
+
+                Cache eventStatsCache = cacheManager.getCache("eventStats");
+                if (eventStatsCache != null) {
+                    eventStatsCache.put(cacheKey, eventStats);
+                }
+
+                Cache topReposCache = cacheManager.getCache("topRepos");
+                if (topReposCache != null) {
+                    topReposCache.put(cacheKey, topRepos);
+                }
+
+                Cache topUsersCache = cacheManager.getCache("topUsers");
+                if (topUsersCache != null) {
+                    topUsersCache.put(cacheKey, topUsers);
+                }
+
+                System.out.println("캐시 'Put' (갱신) 완료");
+            }catch (Exception e){
+                System.out.println("예외발생: " + e.getMessage());
+            }
+
+
             // 차트 데이터 생성
             List<String> chartLabels = eventStats.stream().map(EventStatsDTO::getType).toList();
             List<Integer> chartData = eventStats.stream().map(EventStatsDTO::getCount).toList();
@@ -69,22 +99,25 @@ public class GithubDataScheduler {
             System.out.println("SSE 갱신 전송 완료" + LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
 
 
-            try {
-                Cache statsCache = cacheManager.getCache("eventStats");
-                Cache countCache = cacheManager.getCache("totalEventCount");
-                Cache topReposCache = cacheManager.getCache("topRepos");
-                Cache topUsersCache = cacheManager.getCache("topUsers");
+            //캐시 수동비우기
+//            try {
+//                Cache statsCache = cacheManager.getCache("eventStats");
+//                Cache countCache = cacheManager.getCache("totalEventCount");
+//                Cache topReposCache = cacheManager.getCache("topRepos");
+//                Cache topUsersCache = cacheManager.getCache("topUsers");
+//
+//                //캐시 수동 지우기
+//                if (statsCache != null) statsCache.clear();
+//                if (countCache != null) countCache.clear();
+//                if (topReposCache != null) topReposCache.clear();
+//                if (topUsersCache != null) topUsersCache.clear();
+//
+//                System.out.println("캐시 비우기 완료");
+//            } catch (Exception e) {
+//                System.out.println("예외 발생: " + e.getMessage());
+//            }
 
-                //캐시 수동 지우기
-                if (statsCache != null) statsCache.clear();
-                if (countCache != null) countCache.clear();
-                if (topReposCache != null) topReposCache.clear();
-                if (topUsersCache != null) topUsersCache.clear();
 
-                System.out.println("캐시 비우기 완료");
-            } catch (Exception e) {
-                System.out.println("예외 발생: " + e.getMessage());
-            }
 
         } else {
             System.out.println("새 이벤트 없음");
