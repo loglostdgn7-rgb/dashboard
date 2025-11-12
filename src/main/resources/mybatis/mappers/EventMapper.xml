@@ -11,13 +11,21 @@
         <association property="repo" javaType="RepoDTO">
             <result property="name" column="repo_name"/>
         </association>
+
+        <association property="actor" javaType="ActorDTO">
+            <result property="login" column="actor_login"/>
+            <result property="avatarUrl" column="actor_avatar_url"/>
+        </association>
     </resultMap>
     
     <select id="findAllEventsPaginated" resultMap="eventResultMap" flushCache="true">
         select *
-        from github_events
-        order by created_at DESC, id DESC
-        limit #{limit} offset #{offset}
+        from github_events t1
+                 inner join (select id
+                             from github_events
+                             order by created_at DESC, id DESC
+                             limit #{limit} offset #{offset}) t2 on t1.id = t2.id
+        order by t1.created_at DESC, t1.id DESC
     </select>
 
     <select id="getTotalCount" resultType="java.lang.Integer">
