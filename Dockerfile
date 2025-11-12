@@ -1,28 +1,38 @@
-# 1. 빌드를 위한 베이스 이미지 (Java 21) - eclipse-temurin 사용
+# ---------------------------------------------------
+# 빌드 스테이지 (의존성 캐시 최적화 적용)
+# ---------------------------------------------------
 FROM eclipse-temurin:21-jdk-alpine as builder
 
-# 작업 디렉토리 설정
 WORKDIR /app
 
+# 빌드에 필요한 파일만 먼저 복사
 COPY mvnw .
 COPY .mvn/ .mvn
-COPY mvnw pom.xml ./
+COPY pom.xml ./
+
+# 실행 권한 부여
+RUN chmod +x ./mvnw
+
+#  pom.xml을 기반으로 의존성만 먼저 다운로드 (이 레이어가 캐시됩니다)
+RUN ./mvnw dependency:go-offline
+
+# 소스 코드 복사
+# (소스 코드가 바뀌면 여기부터 빌드를 다시 시작합니다)
 COPY src ./src
 
-# Maven으로 프로젝트 빌드 (의존성 다운로드 후 패키징)
+# 애플리케이션 빌드
 RUN ./mvnw package -DskipTests
 
-# 2. 실행을 위한 경량 이미지 - eclipse-temurin (JRE) 사용
+# ---------------------------------------------------
+#  실행 스테이지
+# ---------------------------------------------------
 FROM eclipse-temurin:21-jre-alpine
 
-# 작업 디렉토리 설정
 WORKDIR /app
 
-# 빌드 단계에서 생성된 JAR 파일만 복사
+# 빌드 스테이지에서 생성된 JAR 파일만 복사
 COPY --from=builder /app/target/*.jar app.jar
 
-# 8080 포트 노출
 EXPOSE 8080
 
-# 애플리케이션 실행
 ENTRYPOINT ["java", "-jar", "app.jar"]
