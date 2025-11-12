@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
+import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +31,8 @@ public class GithubDataScheduler {
     private final int PAGE_SIZE = 10;
     @Autowired
     private CaffeineCacheManager cacheManager;
+
+    private final SimpleKey cacheKey = SimpleKey.EMPTY;
 
 
     //1분마다 받아오기
@@ -57,8 +60,6 @@ public class GithubDataScheduler {
 
             //캐시 풋/먼저 실행하기(저장한 DB 캐시 덮어쓰기)
             try{
-                String cacheKey = "SimpleKey []";
-
                 Cache totalEventCountCache = cacheManager.getCache("totalEventCount");
                 if (totalEventCountCache != null) {
                     totalEventCountCache.put(cacheKey, totalCount);
